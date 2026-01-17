@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能问答系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #fff;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: #f9f9f9;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #10a37f, #1a7f64);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .sidebar-toggle {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .sidebar-toggle:hover {
+            background: #f0f0f0;
+        }
+
+        .sidebar-menu {
+            padding: 8px 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #333;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #ececec;
+        }
+
+        .menu-item-icon {
+            width: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: #e5e5e5;
+            margin: 8px 0;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            margin: 8px 12px;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 13px;
+            background: transparent;
+        }
+
+        .search-box input::placeholder {
+            color: #999;
+        }
+
+        /* 聊天历史记录 */
+        .chat-history-section {
+            margin-top: 8px;
+        }
+
+        .chat-history-title {
+            font-size: 11px;
+            color: #888;
+            padding: 8px 12px 4px;
+            text-transform: uppercase;
+        }
+
+        .chat-history-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #333;
+            font-size: 13px;
+            transition: background 0.2s;
+            margin: 2px 0;
+        }
+
+        .chat-history-item:hover {
+            background: #ececec;
+        }
+
+        .chat-history-item.active {
+            background: #e8e8e8;
+        }
+
+        .chat-history-item .chat-icon {
+            font-size: 14px;
+        }
+
+        .chat-history-item .chat-title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chat-history-item .chat-actions {
+            display: none;
+            gap: 4px;
+        }
+
+        .chat-history-item:hover .chat-actions {
+            display: flex;
+        }
+
+        .chat-action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .chat-action-btn:hover {
+            background: #ddd;
+        }
+
+        /* 用户信息 */
+        .user-section {
+            padding: 12px;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .user-info:hover {
+            background: #ececec;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .user-plan {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 用户下拉菜单 */
+        .user-dropdown {
+            position: absolute;
+            bottom: 70px;
+            left: 12px;
+            width: 236px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-item:first-child {
+            border-radius: 12px 12px 0 0;
+        }
+
+        .dropdown-item:last-child {
+            border-radius: 0 0 12px 12px;
+        }
+
+        .dropdown-icon {
+            width: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .model-selector:hover {
+            background: #f5f5f5;
+        }
+
+        .model-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .model-hint {
+            color: #c4820e;
+            font-size: 14px;
+        }
+
+        .model-arrow {
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* 模型下拉菜单 */
+        .model-dropdown {
+            position: absolute;
+            top: 50px;
+            left: 16px;
+            width: 320px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .model-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-header {
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #666;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .model-option {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .model-option:hover {
+            background: #f5f5f5;
+        }
+
+        .model-option.active {
+            background: #f8f8f8;
+        }
+
+        .model-option-content {
+            flex: 1;
+        }
+
+        .model-option-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .model-option-desc {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .model-option-check {
+            color: #10a37f;
+            font-size: 16px;
+        }
+
+        .model-category {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: background 0.2s;
+        }
+
+        .model-category:hover {
+            background: #f5f5f5;
+        }
+
+        .category-arrow {
+            color: #666;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 18px;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .func-menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .func-menu-btn:hover {
+            background: #f5f5f5;
+        }
+
+        /* 功能菜单下拉 */
+        .func-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 16px;
+            width: 200px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            display: none;
+            z-index: 1000;
+        }
+
+        .func-dropdown.show {
+            display: block;
+        }
+
+        /* 聊天区域 */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-area.has-messages {
+            justify-content: flex-start;
+            padding-top: 40px;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* 消息容器 */
+        .messages-container {
+            width: 100%;
+            max-width: 768px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .messages-container.show {
+            display: block;
+        }
+
+        .message {
+            padding: 16px 0;
+            display: flex;
+            gap: 16px;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .message-avatar.user {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .message-avatar.assistant {
+            background: linear-gradient(135deg, #10a37f, #1a7f64);
+            color: white;
+        }
+
+        .message-content {
+            flex: 1;
+            line-height: 1.6;
+            color: #333;
+            font-size: 15px;
+            white-space: pre-wrap;
+        }
+
+        .message-content.loading::after {
+            content: '●●●';
+            animation: loading 1s infinite;
+        }
+
+        @keyframes loading {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* 输入区域 */
+        .input-area {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-container {
+            width: 100%;
+            max-width: 768px;
+            position: relative;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            background: #f4f4f4;
+            border-radius: 24px;
+            padding: 8px 16px;
+            gap: 12px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .input-box:focus-within {
+            background: white;
+            border-color: #10a37f;
+            box-shadow: 0 0 0 2px rgba(16,163,127,0.1);
+        }
+
+        .input-prefix {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .input-field {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            outline: none;
+            padding: 8px 0;
+            resize: none;
+            max-height: 200px;
+            line-height: 1.5;
+        }
+
+        .input-field::placeholder {
+            color: #999;
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .input-action-btn:hover {
+            background: #e5e5e5;
+        }
+
+        .input-action-btn.send {
+            background: #10a37f;
+            color: white;
+        }
+
+        .input-action-btn.send:hover {
+            background: #0d8a6a;
+        }
+
+        .input-action-btn.send:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ccc;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .modal-close:hover {
+            background: #f0f0f0;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #10a37f;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #10a37f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d8a6a;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e5e5;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #10a37f;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+
+        /* 深色模式 */
+        body.dark-mode {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        body.dark-mode .sidebar {
+            background: #202020;
+            border-color: #333;
+        }
+        body.dark-mode .main-content {
+            background: #1a1a1a;
+        }
+        body.dark-mode .chat-area {
+            background: #1a1a1a;
+        }
+        body.dark-mode .input-container {
+            background: #2d2d2d;
+            border-color: #444;
+        }
+        body.dark-mode .input-container:focus-within {
+            border-color: #10a37f;
+        }
+        body.dark-mode #messageInput {
+            background: transparent;
+            color: #e0e0e0;
+        }
+        body.dark-mode .menu-item,
+        body.dark-mode .chat-history-item {
+            color: #e0e0e0;
+        }
+        body.dark-mode .menu-item:hover,
+        body.dark-mode .chat-history-item:hover {
+            background: #333;
+        }
+        body.dark-mode .chat-history-item.active {
+            background: #3a3a3a;
+        }
+        body.dark-mode .search-box {
+            background: #2d2d2d;
+            border-color: #444;
+        }
+        body.dark-mode .search-box input {
+            color: #e0e0e0;
+        }
+        body.dark-mode .message.assistant .message-content {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+        body.dark-mode .modal {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+        body.dark-mode .modal-header {
+            border-color: #444;
+        }
+        body.dark-mode .modal-footer {
+            border-color: #444;
+        }
+        body.dark-mode .form-input {
+            background: #1a1a1a;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        body.dark-mode .form-label {
+            color: #ccc;
+        }
+        body.dark-mode .setting-item {
+            border-color: #444;
+        }
+        body.dark-mode .setting-label {
+            color: #e0e0e0;
+        }
+        body.dark-mode .btn-secondary {
+            background: #444;
+            color: #e0e0e0;
+        }
+        body.dark-mode .user-dropdown {
+            background: #2d2d2d;
+            border-color: #444;
+        }
+        body.dark-mode .dropdown-item:hover {
+            background: #3a3a3a;
+        }
+        body.dark-mode .welcome-title {
+            color: #e0e0e0;
+        }
+        body.dark-mode .top-bar {
+            border-color: #333;
+        }
+        body.dark-mode .model-display {
+            color: #e0e0e0;
+        }
+        body.dark-mode .func-dropdown {
+            background: #2d2d2d;
+            border-color: #444;
+        }
+        body.dark-mode .func-dropdown-item:hover {
+            background: #3a3a3a;
+        }
+        body.dark-mode .func-dropdown-title {
+            color: #888;
+        }
+        body.dark-mode .dropdown-item {
+            color: #e0e0e0;
+        }
+        body.dark-mode .user-name {
+            color: #e0e0e0;
+        }
+        body.dark-mode .user-plan {
+            color: #888;
+        }
+        body.dark-mode .sidebar-toggle {
+            background: #333;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        body.dark-mode .menu-divider {
+            background: #444;
+        }
+        body.dark-mode .chat-history-title {
+            color: #888;
+        }
+        body.dark-mode .modal-title {
+            color: #e0e0e0;
+        }
+        body.dark-mode .modal-close {
+            color: #888;
+        }
+        body.dark-mode .modal-close:hover {
+            color: #e0e0e0;
+        }
+        body.dark-mode #messageInput::placeholder {
+            color: #666;
+        }
+        body.dark-mode .search-box input::placeholder {
+            color: #666;
+        }
+        body.dark-mode .form-input::placeholder {
+            color: #666;
+        }
+        body.dark-mode .func-dropdown-item {
+            color: #e0e0e0;
+        }
+        body.dark-mode select.form-input {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        /* 快捷提示词 */
+        .quick-prompts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 0 20px;
+        }
+        .quick-prompt-btn {
+            padding: 10px 18px;
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            color: #333;
+        }
+        .quick-prompt-btn:hover {
+            background: #10a37f;
+            color: white;
+            border-color: #10a37f;
+            transform: translateY(-2px);
+        }
+        body.dark-mode .quick-prompt-btn {
+            background: #2d2d2d;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        body.dark-mode .quick-prompt-btn:hover {
+            background: #10a37f;
+            color: white;
+        }
+        .chat-area.has-messages .quick-prompts {
+            display: none;
+        }
+
+        /* 消息复制按钮 */
+        .message-actions {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: -24px;
+            gap: 4px;
+        }
+        .message:hover .message-actions {
+            display: flex;
+        }
+        .message {
+            position: relative;
+        }
+        .msg-action-btn {
+            padding: 4px 8px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            color: #666;
+        }
+        .msg-action-btn:hover {
+            background: #e0e0e0;
+        }
+        body.dark-mode .msg-action-btn {
+            background: #3a3a3a;
+            color: #ccc;
+        }
+        body.dark-mode .msg-action-btn:hover {
+            background: #444;
+        }
+
+        /* 侧边栏折叠 */
+        .sidebar.collapsed {
+            width: 60px;
+        }
+        .sidebar.collapsed .sidebar-menu,
+        .sidebar.collapsed .user-section {
+            display: none;
+        }
+        .sidebar.collapsed .sidebar-header {
+            justify-content: center;
+        }
+        .sidebar.collapsed .logo {
+            display: none;
+        }
+
+        /* 打字机光标 */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: #10a37f;
+            margin-left: 2px;
+            animation: blink 0.8s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">Q</div>
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()" title="折叠侧边栏">☰</button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-item" onclick="createNewChat()">
+                <span class="menu-item-icon">✏️</span>
+                <span>创建新聊天</span>
+            </div>
+            
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="搜索聊天记录..." id="searchInput" oninput="searchChats(this.value)">
+            </div>
+            
+            <div class="menu-divider"></div>
+            
+            <div class="menu-item" onclick="selectModel('doubao')">
+                <span class="menu-item-icon">🤖</span>
+                <span>智能问答</span>
+            </div>
+            
+            <!-- 聊天历史记录 -->
+            <div class="chat-history-section" id="chatHistorySection">
+                <div class="chat-history-title">聊天记录</div>
+                <!-- 聊天记录由JS动态渲染 -->
+            </div>
+        </div>
+
+        <div class="user-section" id="userSection">
+            <div class="user-info" id="loggedInUser" onclick="toggleUserDropdown()" style="display:none;">
+                <div class="user-avatar" id="userAvatarDisplay">U</div>
+                <div class="user-details">
+                    <div class="user-name" id="userNameDisplay">User</div>
+                    <div class="user-plan">在线</div>
+                </div>
+            </div>
+            <div class="menu-item" id="loginBtn" onclick="showLoginModal()">
+                <span class="menu-item-icon">🔑</span>
+                <span>登录 / 注册</span>
+            </div>
+        </div>
+
+        <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-item" onclick="showProfileModal()">
+                <span class="dropdown-icon">👤</span>
+                <span>个人信息</span>
+            </div>
+            <div class="dropdown-item" onclick="showSettingsModal()">
+                <span class="dropdown-icon">⚙️</span>
+                <span>设置</span>
+            </div>
+            <div class="dropdown-item" id="adminEntry" style="display:none;" onclick="goToAdmin()">
+                <span class="dropdown-icon">📊</span>
+                <span>后台管理</span>
+            </div>
+            <div class="dropdown-item" onclick="logout()">
+                <span class="dropdown-icon">🚪</span>
+                <span>退出登录</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录注册弹窗 -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="authModalTitle">登录</span>
+                <button class="modal-close" onclick="closeModal('loginModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-input" id="loginUsername" placeholder="请输入用户名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="请输入密码">
+                    </div>
+                    <div style="text-align:center;margin-top:16px;">
+                        <span style="color:#666;font-size:13px;">没有账号？</span>
+                        <a href="javascript:void(0)" onclick="switchToRegister()" style="color:#10a37f;font-size:13px;">立即注册</a>
+                    </div>
+                </div>
+                <div id="registerForm" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-input" id="regUsername" placeholder="请输入用户名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-input" id="regPassword" placeholder="请输入密码">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">确认密码</label>
+                        <input type="password" class="form-input" id="regPassword2" placeholder="请再次输入密码">
+                    </div>
+                    <div style="text-align:center;margin-top:16px;">
+                        <span style="color:#666;font-size:13px;">已有账号？</span>
+                        <a href="javascript:void(0)" onclick="switchToLogin()" style="color:#10a37f;font-size:13px;">返回登录</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('loginModal')">取消</button>
+                <button class="btn btn-primary" id="authSubmitBtn" onclick="submitLogin()">登录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 个人信息弹窗 -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">个人信息</span>
+                <button class="modal-close" onclick="closeModal('profileModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" class="form-input" id="profileName" value="User">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">头像</label>
+                    <div style="display:flex;gap:10px;margin-top:8px;">
+                        <div class="user-avatar avatar-option" style="cursor:pointer;" onclick="selectAvatar(this,'U')">U</div>
+                        <div class="user-avatar avatar-option" style="cursor:pointer;background:linear-gradient(135deg,#667eea,#764ba2);" onclick="selectAvatar(this,'A')">A</div>
+                        <div class="user-avatar avatar-option" style="cursor:pointer;background:linear-gradient(135deg,#f093fb,#f5576c);" onclick="selectAvatar(this,'B')">B</div>
+                        <div class="user-avatar avatar-option" style="cursor:pointer;background:linear-gradient(135deg,#4facfe,#00f2fe);" onclick="selectAvatar(this,'C')">C</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('profileModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveProfile()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置弹窗 -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">设置</span>
+                <button class="modal-close" onclick="closeModal('settingsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <span class="setting-label">深色模式</span>
+                    <div class="toggle-switch" id="darkModeToggle" onclick="toggleDarkMode()"></div>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-label">消息提示音</span>
+                    <div class="toggle-switch active" id="soundToggle" onclick="toggleSound()"></div>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-label">自动保存对话</span>
+                    <div class="toggle-switch active" id="autoSaveToggle" onclick="toggleAutoSave()"></div>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-label">默认模式</span>
+                    <select class="form-input" style="width:auto;" id="defaultModeSelect">
+                        <option value="doubao">豆包智能对话</option>
+                        <option value="deepseek">DeepSeek智能对话</option>
+                        <option value="local">本地聊天模型</option>
+                        <option value="classify">文本分类</option>
+                        <option value="sentiment">情感分析</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('settingsModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 顶部栏 -->
+        <div class="top-bar">
+            <div class="model-selector" onclick="toggleModelDropdown()">
+                <span class="model-name" id="currentModelName">智能问答系统</span>
+                <span class="model-hint" id="modelHint">[点此可切换模型]</span>
+                <span class="model-arrow">▼</span>
+            </div>
+
+            <div class="top-actions">
+                <button class="action-btn" title="刷新" onclick="location.reload()">🔄</button>
+                <button class="func-menu-btn" onclick="toggleFuncDropdown()">
+                    <span>⋮</span>
+                    <span>功能选单</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 模型下拉菜单 -->
+        <div class="model-dropdown" id="modelDropdown">
+            <div class="dropdown-header">
+                <span>模型</span>
+                <span>ℹ️</span>
+            </div>
+            <div class="model-option active" data-mode="doubao" onclick="selectModel('doubao')">
+                <div class="model-option-content">
+                    <div class="model-option-title">🌟 豆包智能对话</div>
+                    <div class="model-option-desc">基于大语言模型，智能问答</div>
+                </div>
+                <span class="model-option-check" id="check-doubao">✓</span>
+            </div>
+            <div class="model-option" data-mode="deepseek" onclick="selectModel('deepseek')">
+                <div class="model-option-content">
+                    <div class="model-option-title">🔥 DeepSeek智能对话</div>
+                    <div class="model-option-desc">DeepSeek V3大模型</div>
+                </div>
+                <span class="model-option-check" id="check-deepseek" style="display:none">✓</span>
+            </div>
+            <div class="model-option" data-mode="local" onclick="selectModel('local')">
+                <div class="model-option-content">
+                    <div class="model-option-title">💻 本地聊天模型</div>
+                    <div class="model-option-desc">使用本地训练的模型</div>
+                </div>
+                <span class="model-option-check" id="check-local" style="display:none">✓</span>
+            </div>
+            <div class="menu-divider"></div>
+            <div class="model-category" onclick="selectModel('classify')">
+                <span>📁 文本分类</span>
+                <span class="category-arrow">›</span>
+            </div>
+            <div class="model-category" onclick="selectModel('sentiment')">
+                <span>💭 情感分析</span>
+                <span class="category-arrow">›</span>
+            </div>
+            <div class="model-category" onclick="selectModel('multi_analysis')">
+                <span>📋 综合分析</span>
+                <span class="category-arrow">›</span>
+            </div>
+            <div class="menu-divider"></div>
+            <div class="model-category" onclick="selectModel('translate_zh2en')">
+                <span>🇨🇳→🇬🇧 中译英</span>
+                <span class="category-arrow">›</span>
+            </div>
+            <div class="model-category" onclick="selectModel('translate_en2zh')">
+                <span>🇬🇧→🇨🇳 英译中</span>
+                <span class="category-arrow">›</span>
+            </div>
+        </div>
+
+        <!-- 功能下拉菜单 -->
+        <div class="func-dropdown" id="funcDropdown">
+            <div class="dropdown-item" onclick="clearChat()">
+                <span class="dropdown-icon">🗑️</span>
+                <span>清空对话</span>
+            </div>
+            <div class="dropdown-item" onclick="checkStatus()">
+                <span class="dropdown-icon">📊</span>
+                <span>服务状态</span>
+            </div>
+        </div>
+
+        <!-- 聊天区域 -->
+        <div class="chat-area" id="chatArea">
+            <h1 class="welcome-title" id="welcomeTitle">有什么可以帮忙的?</h1>
+            
+            <!-- 快捷提示词 -->
+            <div class="quick-prompts" id="quickPrompts">
+                <button class="quick-prompt-btn" onclick="usePrompt('介绍一下你自己')">👋 介绍一下你自己</button>
+                <button class="quick-prompt-btn" onclick="usePrompt('帮我写一段Python代码')">💻 写一段代码</button>
+                <button class="quick-prompt-btn" onclick="usePrompt('给我推荐一部电影')">🎬 推荐电影</button>
+                <button class="quick-prompt-btn" onclick="usePrompt('给我讲个笑话')">😄 讲个笑话</button>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <!-- 消息会动态插入这里 -->
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-area">
+            <div class="input-container">
+                <div class="input-box">
+                    <div class="input-prefix">+</div>
+                    <textarea class="input-field" id="messageInput" placeholder="询问任何问题" rows="1" onkeydown="handleKeyDown(event)"></textarea>
+                    <div class="input-actions">
+                        <button class="input-action-btn" title="语音">🎤</button>
+                        <button class="input-action-btn send" id="sendBtn" onclick="sendMessage()" title="发送">➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/jquery-latest.js"></script>
+    <script>
+        // 当前模式
+        window.currentMode = 'doubao';
+
+        // 模式名称映射
+        const modeNames = {
+            'doubao': '🌟 豆包智能对话',
+            'deepseek': '🔥 DeepSeek智能对话',
+            'local': '💻 本地聊天模型',
+            'classify': '📁 文本分类',
+            'sentiment': '💭 情感分析',
+            'translate_zh2en': '🇨🇳→🇬🇧 中译英',
+            'translate_en2zh': '🇬🇧→🇨🇳 英译中',
+            'multi_analysis': '📋 综合分析'
+        };
+
+        const modePlaceholders = {
+            'doubao': '询问任何问题',
+            'deepseek': '使用DeepSeek对话',
+            'local': '使用本地模型对话',
+            'classify': '输入新闻文本进行分类',
+            'sentiment': '输入文本分析情感',
+            'translate_zh2en': '输入中文翻译成英文',
+            'translate_en2zh': 'Enter English to translate',
+            'multi_analysis': '输入文本进行综合分析'
+        };
+
+        // 切换模型下拉
+        function toggleModelDropdown() {
+            document.getElementById('modelDropdown').classList.toggle('show');
+            document.getElementById('funcDropdown').classList.remove('show');
+            document.getElementById('userDropdown').classList.remove('show');
+        }
+
+        // 切换功能下拉
+        function toggleFuncDropdown() {
+            document.getElementById('funcDropdown').classList.toggle('show');
+            document.getElementById('modelDropdown').classList.remove('show');
+            document.getElementById('userDropdown').classList.remove('show');
+        }
+
+        // 切换用户下拉
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('show');
+            document.getElementById('modelDropdown').classList.remove('show');
+            document.getElementById('funcDropdown').classList.remove('show');
+        }
+
+        // 点击其他地方关闭下拉
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.model-selector') && !e.target.closest('.model-dropdown')) {
+                document.getElementById('modelDropdown').classList.remove('show');
+            }
+            if (!e.target.closest('.func-menu-btn') && !e.target.closest('.func-dropdown')) {
+                document.getElementById('funcDropdown').classList.remove('show');
+            }
+            if (!e.target.closest('.user-info') && !e.target.closest('.user-dropdown')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+
+        // 选择模型
+        function selectModel(mode) {
+            const previousMode = window.currentMode;
+            window.currentMode = mode;
+            
+            // 更新显示
+            document.getElementById('currentModelName').textContent = modeNames[mode] || mode;
+            document.getElementById('modelHint').textContent = '[点此可切换模型]';
+            document.getElementById('messageInput').placeholder = modePlaceholders[mode] || '询问任何问题';
+            
+            // 更新选中状态
+            document.querySelectorAll('.model-option-check').forEach(el => el.style.display = 'none');
+            const checkEl = document.getElementById('check-' + mode);
+            if (checkEl) checkEl.style.display = 'inline';
+            
+            document.querySelectorAll('.model-option').forEach(el => el.classList.remove('active'));
+            const activeOption = document.querySelector(`.model-option[data-mode="${mode}"]`);
+            if (activeOption) activeOption.classList.add('active');
+            
+            // 关闭下拉
+            document.getElementById('modelDropdown').classList.remove('show');
+            
+            // 如果模式发生变化且当前有消息，自动创建新聊天
+            if (previousMode && previousMode !== mode) {
+                const messagesContainer = document.getElementById('messagesContainer');
+                const hasMessages = messagesContainer.querySelector('.message');
+                
+                if (hasMessages && currentUser) {
+                    // 保存当前聊天
+                    const messages = [];
+                    document.querySelectorAll('#messagesContainer .message').forEach(msg => {
+                        const role = msg.querySelector('.message-avatar').classList.contains('user') ? 'user' : 'assistant';
+                        const text = msg.querySelector('.message-content').textContent;
+                        messages.push({role, text});
+                    });
+                    
+                    if (messages.length > 0 && currentChatId) {
+                        // 更新当前聊天的消息
+                        chatHistories[currentChatId].messages = messages;
+                        saveUserChats();
+                    }
+                    
+                    // 创建新聊天
+                    createNewChatForMode(mode);
+                }
+            }
+        }
+        
+        // 为新模式创建新聊天
+        function createNewChatForMode(mode) {
+            // 清空当前对话
+            clearChat();
+            
+            // 取消所有选中状态
+            document.querySelectorAll('.chat-history-item').forEach(el => el.classList.remove('active'));
+            
+            // 创建新聊天ID
+            currentChatId = chatIdCounter++;
+            
+            // 生成聊天标题
+            const title = `${modeNames[mode]} - ${new Date().toLocaleString('zh-CN', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'})}`;
+            
+            // 保存到历史记录
+            chatHistories[currentChatId] = {
+                title: title,
+                mode: mode,
+                messages: []
+            };
+            
+            // 添加到侧边栏
+            addChatToSidebar(currentChatId, title);
+            
+            // 同步到后端
+            saveUserChats();
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            // 显示消息区域，隐藏欢迎语
+            document.getElementById('welcomeTitle').style.display = 'none';
+            document.getElementById('messagesContainer').classList.add('show');
+            document.getElementById('chatArea').classList.add('has-messages');
+
+            // 添加用户消息
+            addMessage(msg, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+
+            // 添加加载消息
+            const loadingId = 'loading-' + Date.now();
+            addMessage('', 'assistant', loadingId, true);
+
+            // 发送请求
+            $.post('/message', {
+                msg: msg,
+                mode: window.currentMode
+            }).done(function(reply) {
+                // 移除加载消息，添加回复（带打字机效果）
+                document.getElementById(loadingId)?.remove();
+                addMessage(reply.text || '未收到回复', 'assistant', null, false, true);
+                
+                // 播放提示音
+                playNotificationSound();
+                
+                // 保存到历史记录（根据设置）
+                if (settings.autoSave) {
+                    saveCurrentChat(msg);
+                }
+            }).fail(function(xhr) {
+                document.getElementById(loadingId)?.remove();
+                let errorMsg = '请求失败，请检查网络连接';
+                if (xhr.status === 0) errorMsg = '无法连接到服务器';
+                else if (xhr.status === 500) errorMsg = '服务器内部错误';
+                addMessage('⚠️ ' + errorMsg, 'assistant');
+            });
+        }
+
+        // 添加消息
+        function addMessage(text, role, id, isLoading, useTypewriter) {
+            const container = document.getElementById('messagesContainer');
+            const div = document.createElement('div');
+            div.className = 'message';
+            if (id) div.id = id;
+
+            const avatarClass = role === 'user' ? 'user' : 'assistant';
+            const avatarContent = role === 'user' ? 'U' : '🤖';
+
+            div.innerHTML = `
+                <div class="message-avatar ${avatarClass}">${avatarContent}</div>
+                <div class="message-content ${isLoading ? 'loading' : ''}">${isLoading ? '' : escapeHtml(text)}</div>
+                ${!isLoading ? '<div class="message-actions"><button class="msg-action-btn" onclick="copyMessage(this)">📋 复制</button></div>' : ''}
+            `;
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            
+            // 打字机效果（仅AI回复）
+            if (useTypewriter && role === 'assistant' && !isLoading && text) {
+                typewriterEffect(div.querySelector('.message-content'), text);
+            }
+        }
+        
+        // 打字机效果
+        function typewriterEffect(element, text) {
+            element.innerHTML = '<span class="typing-cursor"></span>';
+            let i = 0;
+            const escaped = escapeHtml(text);
+            const interval = setInterval(() => {
+                if (i < escaped.length) {
+                    element.innerHTML = escaped.substring(0, i + 1) + '<span class="typing-cursor"></span>';
+                    i++;
+                    element.parentElement.parentElement.scrollTop = element.parentElement.parentElement.scrollHeight;
+                } else {
+                    element.innerHTML = escaped;
+                    clearInterval(interval);
+                }
+            }, 20);
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 复制消息
+        function copyMessage(btn) {
+            const content = btn.closest('.message').querySelector('.message-content').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ 已复制';
+                setTimeout(() => btn.innerHTML = originalText, 1500);
+            }).catch(() => {
+                alert('复制失败');
+            });
+        }
+
+        // 使用快捷提示词
+        function usePrompt(prompt) {
+            document.getElementById('messageInput').value = prompt;
+            sendMessage();
+        }
+
+        // 侧边栏折叠
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        // 键盘事件
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // 自动调整输入框高度
+        document.getElementById('messageInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+
+        // 清空对话
+        function clearChat() {
+            document.getElementById('messagesContainer').innerHTML = '';
+            document.getElementById('messagesContainer').classList.remove('show');
+            document.getElementById('welcomeTitle').style.display = 'block';
+            document.getElementById('chatArea').classList.remove('has-messages');
+            document.getElementById('funcDropdown').classList.remove('show');
+        }
+
+        // 检查服务状态
+        function checkStatus() {
+            $.get('/health').done(function(data) {
+                alert('✅ 服务运行正常\n' + JSON.stringify(data, null, 2));
+            }).fail(function() {
+                alert('❌ 服务异常，请检查后端是否启动');
+            });
+            document.getElementById('funcDropdown').classList.remove('show');
+        }
+
+        // ==================== 聊天历史功能 ====================
+        
+        // 聊天记录存储（每个用户独立）
+        let chatHistories = {};
+        
+        let currentChatId = null;
+        let chatIdCounter = 1;
+
+        // 从后端加载用户的聊天记录
+        function loadUserChats() {
+            if (!currentUser) return;
+            
+            $.get('/api/chats/' + currentUser).done(function(res) {
+                if (res.success && res.chats) {
+                    // 转换为对象格式
+                    chatHistories = {};
+                    res.chats.forEach(chat => {
+                        chatHistories[chat.id] = chat;
+                        if (chat.id >= chatIdCounter) {
+                            chatIdCounter = chat.id + 1;
+                        }
+                    });
+                    // 渲染侧边栏
+                    renderChatHistory();
+                }
+            });
+        }
+
+        // 保存用户的聊天记录到后端
+        function saveUserChats() {
+            if (!currentUser) return;
+            
+            // 转换为数组格式
+            const chatsArray = Object.entries(chatHistories).map(([id, chat]) => ({
+                id: parseInt(id),
+                ...chat
+            }));
+            
+            $.ajax({
+                url: '/api/chats/' + currentUser,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ chats: chatsArray })
+            });
+        }
+
+        // 渲染侧边栏聊天历史
+        function renderChatHistory() {
+            const section = document.getElementById('chatHistorySection');
+            // 清空现有的聊天项
+            section.querySelectorAll('.chat-history-item').forEach(el => el.remove());
+            
+            const todayTitle = section.querySelector('.chat-history-title');
+            
+            // 按ID倒序排列（最新的在前面），只显示最近5条
+            const sortedChats = Object.entries(chatHistories).sort((a, b) => b[0] - a[0]).slice(0, 5);
+            
+            sortedChats.forEach(([chatId, chat]) => {
+                const html = `
+                    <div class="chat-history-item" data-chat-id="${chatId}" onclick="loadChat(${chatId})">
+                        <span class="chat-icon">💬</span>
+                        <span class="chat-title">${chat.title || '新对话'}</span>
+                        <div class="chat-actions">
+                            <button class="chat-action-btn" onclick="event.stopPropagation();deleteChat(${chatId})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+                todayTitle.insertAdjacentHTML('afterend', html);
+            });
+        }
+
+        // 创建新聊天
+        function createNewChat() {
+            // 清空当前对话
+            clearChat();
+            
+            // 取消所有选中状态
+            document.querySelectorAll('.chat-history-item').forEach(el => el.classList.remove('active'));
+            
+            // 重置为默认模式
+            selectModel('doubao');
+            
+            currentChatId = null;
+        }
+
+        // 加载聊天记录
+        function loadChat(chatId) {
+            const chat = chatHistories[chatId];
+            if (!chat) return;
+            
+            currentChatId = chatId;
+            
+            // 更新选中状态
+            document.querySelectorAll('.chat-history-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`[data-chat-id="${chatId}"]`)?.classList.add('active');
+            
+            // 切换模式
+            selectModel(chat.mode);
+            
+            // 清空并加载消息
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            
+            if (chat.messages.length > 0) {
+                document.getElementById('welcomeTitle').style.display = 'none';
+                container.classList.add('show');
+                document.getElementById('chatArea').classList.add('has-messages');
+                
+                chat.messages.forEach(msg => {
+                    addMessage(msg.text, msg.role);
+                });
+            } else {
+                document.getElementById('welcomeTitle').style.display = 'block';
+                container.classList.remove('show');
+                document.getElementById('chatArea').classList.remove('has-messages');
+            }
+        }
+
+        // 删除聊天记录
+        function deleteChat(chatId) {
+            if (!confirm('确定删除这个聊天记录吗？')) return;
+            
+            // 从存储中删除
+            delete chatHistories[chatId];
+            
+            // 同步到后端
+            saveUserChats();
+            
+            // 从界面中移除
+            document.querySelector(`[data-chat-id="${chatId}"]`)?.remove();
+            
+            // 如果删除的是当前聊天，创建新聊天
+            if (currentChatId === chatId) {
+                createNewChat();
+            }
+        }
+
+        // 搜索聊天记录
+        function searchChats(keyword) {
+            const items = document.querySelectorAll('.chat-history-item');
+            keyword = keyword.toLowerCase();
+            
+            items.forEach(item => {
+                const title = item.querySelector('.chat-title').textContent.toLowerCase();
+                if (keyword === '' || title.includes(keyword)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // 保存当前对话到历史
+        function saveCurrentChat(firstMessage) {
+            if (!currentUser) return; // 未登录不保存
+            
+            // 收集当前所有消息
+            const messages = [];
+            document.querySelectorAll('#messagesContainer .message').forEach(msg => {
+                const role = msg.querySelector('.message-avatar').classList.contains('user') ? 'user' : 'assistant';
+                const text = msg.querySelector('.message-content').textContent;
+                messages.push({role, text});
+            });
+            
+            if (messages.length === 0) return;
+            
+            // 生成标题（取第一条用户消息）
+            const title = (firstMessage || messages[0].text).substring(0, 12) + ((firstMessage || messages[0].text).length > 12 ? '...' : '');
+            
+            if (!currentChatId) {
+                // 创建新的聊天记录
+                currentChatId = chatIdCounter++;
+                
+                chatHistories[currentChatId] = {
+                    title: title,
+                    mode: window.currentMode,
+                    messages: messages
+                };
+                
+                // 添加到侧边栏
+                addChatToSidebar(currentChatId, title);
+            } else {
+                // 更新现有记录
+                chatHistories[currentChatId].messages = messages;
+                
+                // 同时更新侧边栏标题（取最新的第一条用户消息）
+                const userMsgs = messages.filter(m => m.role === 'user');
+                if (userMsgs.length > 0) {
+                    const latestTitle = userMsgs[userMsgs.length - 1].text.substring(0, 12) + (userMsgs[userMsgs.length - 1].text.length > 12 ? '...' : '');
+                    chatHistories[currentChatId].title = latestTitle;
+                    const el = document.querySelector(`[data-chat-id="${currentChatId}"] .chat-title`);
+                    if (el) el.textContent = latestTitle;
+                }
+            }
+            
+            // 同步保存到后端
+            saveUserChats();
+        }
+
+        // 添加聊天到侧边栏
+        function addChatToSidebar(chatId, title) {
+            const section = document.getElementById('chatHistorySection');
+            const todayTitle = section.querySelector('.chat-history-title');
+            
+            const html = `
+                <div class="chat-history-item active" data-chat-id="${chatId}" onclick="loadChat(${chatId})">
+                    <span class="chat-icon">💬</span>
+                    <span class="chat-title">${title}</span>
+                    <div class="chat-actions">
+                        <button class="chat-action-btn" onclick="event.stopPropagation();deleteChat(${chatId})">🗑️</button>
+                    </div>
+                </div>
+            `;
+            
+            // 插入到"今天"标题后面
+            todayTitle.insertAdjacentHTML('afterend', html);
+            
+            // 取消其他选中状态
+            document.querySelectorAll('.chat-history-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`[data-chat-id="${chatId}"]`)?.classList.add('active');
+        }
+
+        // ==================== 用户设置功能 ====================
+        
+        // 显示个人信息弹窗
+        function showProfileModal() {
+            document.getElementById('userDropdown').classList.remove('show');
+            if (currentUser) {
+                document.getElementById('profileName').value = currentUser;
+            }
+            document.getElementById('profileModal').classList.add('show');
+        }
+
+        // 显示设置弹窗
+        function showSettingsModal() {
+            document.getElementById('userDropdown').classList.remove('show');
+            document.getElementById('settingsModal').classList.add('show');
+        }
+
+        // 关闭弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+
+
+        // ==================== 登录注册功能 ====================
+        
+        let isLoggedIn = false;
+        let currentUser = null;
+        let currentUserRole = null;
+
+        // 页面加载时检查登录状态
+        document.addEventListener('DOMContentLoaded', function() {
+            // 先加载设置
+            loadSettings();
+            // 检查登录状态
+            checkLoginStatus();
+            // 应用默认模式
+            selectModel(settings.defaultMode);
+            // 绑定默认模式选择器事件
+            document.getElementById('defaultModeSelect').addEventListener('change', function() {
+                settings.defaultMode = this.value;
+                saveSettings();
+            });
+            document.getElementById('messageInput').focus();
+        });
+
+        // 检查登录状态
+        function checkLoginStatus() {
+            const userStr = localStorage.getItem('currentUser');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    isLoggedIn = true;
+                    currentUser = user.username;
+                    currentUserRole = user.role;
+                    updateLoginState();
+                    // 加载用户的聊天记录
+                    loadUserChats();
+                } catch(e) {
+                    localStorage.removeItem('currentUser');
+                }
+            }
+        }
+
+        // 显示登录弹窗
+        function showLoginModal() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('authModalTitle').textContent = '登录';
+            document.getElementById('authSubmitBtn').textContent = '登录';
+            document.getElementById('authSubmitBtn').onclick = submitLogin;
+            document.getElementById('loginModal').classList.add('show');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        // 切换到注册
+        function switchToRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('authModalTitle').textContent = '注册';
+            document.getElementById('authSubmitBtn').textContent = '注册';
+            document.getElementById('authSubmitBtn').onclick = submitRegister;
+        }
+
+        // 切换到登录
+        function switchToLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('authModalTitle').textContent = '登录';
+            document.getElementById('authSubmitBtn').textContent = '登录';
+            document.getElementById('authSubmitBtn').onclick = submitLogin;
+        }
+
+        // 提交登录 - 使用后端API
+        function submitLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                alert('请填写用户名和密码');
+                return;
+            }
+            
+            $.ajax({
+                url: '/api/login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ username, password })
+            }).done(function(res) {
+                if (res.success) {
+                    isLoggedIn = true;
+                    currentUser = res.user.username;
+                    currentUserRole = res.user.role;
+                    // 保存到localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(res.user));
+                    updateLoginState();
+                    // 加载用户的聊天记录
+                    loadUserChats();
+                    closeModal('loginModal');
+                    alert('✅ 登录成功！欢迎回来，' + currentUser);
+                } else {
+                    alert('❌ ' + res.message);
+                }
+            }).fail(function() {
+                alert('❌ 登录失败，请重试');
+            });
+        }
+
+        // 提交注册 - 使用后端API
+        function submitRegister() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const password2 = document.getElementById('regPassword2').value;
+            
+            if (!username || !password) {
+                alert('请填写用户名和密码');
+                return;
+            }
+            if (password !== password2) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            
+            $.ajax({
+                url: '/api/register',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ username, password })
+            }).done(function(res) {
+                if (res.success) {
+                    isLoggedIn = true;
+                    currentUser = res.user.username;
+                    currentUserRole = res.user.role;
+                    localStorage.setItem('currentUser', JSON.stringify(res.user));
+                    updateLoginState();
+                    // 新用户没有聊天记录，清空显示
+                    chatHistories = {};
+                    renderChatHistory();
+                    closeModal('loginModal');
+                    alert('✅ 注册成功！欢迎，' + currentUser);
+                } else {
+                    alert('❌ ' + res.message);
+                }
+            }).fail(function() {
+                alert('❌ 注册失败，请重试');
+            });
+        }
+
+        // 更新登录状态UI
+        function updateLoginState() {
+            if (isLoggedIn && currentUser) {
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('loggedInUser').style.display = 'flex';
+                document.getElementById('userNameDisplay').textContent = currentUser;
+                document.getElementById('userAvatarDisplay').textContent = currentUser.charAt(0).toUpperCase();
+                
+                // 只有admin才显示后台管理入口
+                if (currentUserRole === 'admin') {
+                    document.getElementById('adminEntry').style.display = 'flex';
+                } else {
+                    document.getElementById('adminEntry').style.display = 'none';
+                }
+            } else {
+                document.getElementById('loginBtn').style.display = 'flex';
+                document.getElementById('loggedInUser').style.display = 'none';
+                document.getElementById('adminEntry').style.display = 'none';
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                isLoggedIn = false;
+                currentUser = null;
+                currentUserRole = null;
+                localStorage.removeItem('currentUser');
+                updateLoginState();
+                // 清空聊天历史
+                chatHistories = {};
+                currentChatId = null;
+                chatIdCounter = 1;
+                renderChatHistory();
+                clearChat();
+                document.getElementById('userDropdown').classList.remove('show');
+                alert('已退出登录');
+            }
+        }
+
+        // 进入后台管理
+        function goToAdmin() {
+            if (currentUserRole !== 'admin') {
+                alert('只有管理员才能访问后台管理');
+                return;
+            }
+            window.location.href = '/admin';
+        }
+
+        // ==================== 导出和清空功能 ====================
+
+        // 导出聊天数据
+        function exportChats() {
+            const data = JSON.stringify(chatHistories, null, 2);
+            const blob = new Blob([data], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'chat_history_' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('✅ 数据已导出');
+        }
+
+        // 清空所有聊天记录
+        function clearAllChats() {
+            if (confirm('⚠️ 确定要清空所有聊天记录吗？此操作不可恢复！')) {
+                chatHistories = {};
+                currentChatId = null;
+                chatIdCounter = 1;
+                
+                // 清空侧边栏
+                document.querySelectorAll('.chat-history-item').forEach(el => el.remove());
+                
+                // 清空当前对话
+                clearChat();
+                
+                alert('✅ 所有聊天记录已清空');
+            }
+        }
+
+        // ==================== 个人信息功能 ====================
+        
+        // 选择头像
+        let selectedAvatar = 'U';
+        let selectedAvatarBg = 'linear-gradient(135deg, #ff6b6b, #ee5a5a)';
+        
+        function selectAvatar(el, letter) {
+            selectedAvatar = letter;
+            selectedAvatarBg = el.style.background || 'linear-gradient(135deg, #ff6b6b, #ee5a5a)';
+            
+            // 更新选中状态
+            document.querySelectorAll('.avatar-option').forEach(a => a.style.outline = 'none');
+            el.style.outline = '3px solid #10a37f';
+        }
+
+        // 保存个人信息
+        function saveProfile() {
+            const name = document.getElementById('profileName').value.trim();
+            if (name && currentUser) {
+                currentUser = name;
+                document.getElementById('userNameDisplay').textContent = name;
+                document.getElementById('userAvatarDisplay').textContent = selectedAvatar;
+                document.getElementById('userAvatarDisplay').style.background = selectedAvatarBg;
+            }
+            closeModal('profileModal');
+            alert('✅ 个人信息已保存');
+        }
+
+        // ==================== 设置功能 ====================
+        
+        // 设置项
+        let settings = {
+            darkMode: false,
+            sound: false,
+            autoSave: true,
+            defaultMode: 'doubao'
+        };
+
+        // 加载设置
+        function loadSettings() {
+            const saved = localStorage.getItem('appSettings');
+            if (saved) {
+                try {
+                    settings = { ...settings, ...JSON.parse(saved) };
+                } catch(e) {}
+            }
+            applySettings();
+        }
+
+        // 保存设置
+        function saveSettings() {
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+        }
+
+        // 应用设置
+        function applySettings() {
+            // 深色模式
+            if (settings.darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').classList.add('active');
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('darkModeToggle').classList.remove('active');
+            }
+            
+            // 提示音
+            if (settings.sound) {
+                document.getElementById('soundToggle').classList.add('active');
+            } else {
+                document.getElementById('soundToggle').classList.remove('active');
+            }
+            
+            // 自动保存
+            if (settings.autoSave) {
+                document.getElementById('autoSaveToggle').classList.add('active');
+            } else {
+                document.getElementById('autoSaveToggle').classList.remove('active');
+            }
+            
+            // 默认模式
+            document.getElementById('defaultModeSelect').value = settings.defaultMode;
+        }
+
+        // 播放提示音
+        function playNotificationSound() {
+            if (!settings.sound) return;
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleQUNfLvY3pZXGBp2tdrhsmI0JXmp0NyxZD1BdJ7F0K14WFNKXHW22dqtfXZwZFRdaJa7rXMaDjRupNvklFsDBj6W0OmpZgIASJvS6KRZDQBOm83omFcLAE2azeiVVgkAT5rN6JdYCwBOms3omFcLAE2azeiWVwoAT5rN6JdYCwBNms3ol1cLAE6azeiXVwsATprN6JdXCwBNms3ol1cLAE6azeiXWAsATZrN6JdXCwBOms3ol1cLAE2azeiXVwsATprN6JdXCwBNms3olw==');
+                audio.volume = 0.3;
+                audio.play().catch(() => {});
+            } catch(e) {}
+        }
+
+        // 切换深色模式
+        function toggleDarkMode() {
+            settings.darkMode = !settings.darkMode;
+            applySettings();
+            saveSettings();
+        }
+
+        // 切换提示音
+        function toggleSound() {
+            settings.sound = !settings.sound;
+            applySettings();
+            saveSettings();
+        }
+
+        // 切换自动保存
+        function toggleAutoSave() {
+            settings.autoSave = !settings.autoSave;
+            applySettings();
+            saveSettings();
+        }
+
+        // 点击弹窗外部关闭
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

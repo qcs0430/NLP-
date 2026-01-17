@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 智能问答系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: linear-gradient(135deg, #10a37f, #1a7f64);
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .navbar-brand .logo {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .navbar-user span {
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-light {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-light:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn-primary {
+            background: #10a37f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d8a6a;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        /* 未登录提示 */
+        .login-required {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 68px);
+            text-align: center;
+        }
+
+        .login-required h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .login-required p {
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat-card .stat-value {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stat-card.green .stat-value { color: #10a37f; }
+        .stat-card.orange .stat-value { color: #d97706; }
+        .stat-card.purple .stat-value { color: #7c3aed; }
+        .stat-card.pink .stat-value { color: #db2777; }
+
+        /* 用户管理区域 */
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 添加用户表单 */
+        .add-user-form {
+            display: none;
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .add-user-form.show {
+            display: block;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .form-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #10a37f;
+        }
+
+        /* 用户表格 */
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .user-table th,
+        .user-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .user-table th {
+            background: #f9f9f9;
+            font-weight: 500;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .user-table tr:hover {
+            background: #fafafa;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-badge.admin {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .role-badge.user {
+            background: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        .password-cell {
+            cursor: pointer;
+            font-family: monospace;
+        }
+
+        .password-cell:hover {
+            color: #10a37f;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .main-content {
+                padding: 16px;
+            }
+        }
+
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="logo">Q</div>
+            <span>后台管理系统</span>
+        </div>
+        <div class="navbar-user">
+            <span id="adminName">管理员</span>
+            <button class="btn btn-light" onclick="goBack()">← 返回首页</button>
+            <button class="btn btn-light" onclick="logout()">退出登录</button>
+        </div>
+    </nav>
+
+    <!-- 未登录提示 -->
+    <div class="login-required" id="loginRequired">
+        <h2>🔒 需要管理员权限</h2>
+        <p>请使用管理员账户(admin)登录后访问此页面</p>
+        <button class="btn btn-primary" onclick="goBack()">返回首页登录</button>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content" id="mainContent" style="display:none;">
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card green">
+                <div class="stat-value" id="statUsers">0</div>
+                <div class="stat-label">注册用户</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-value" id="statAdmins">0</div>
+                <div class="stat-label">管理员</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-value" id="statNormalUsers">0</div>
+                <div class="stat-label">普通用户</div>
+            </div>
+            <div class="stat-card pink">
+                <div class="stat-value" id="statToday">今日</div>
+                <div class="stat-label">访问时间</div>
+            </div>
+        </div>
+
+        <!-- 用户管理 -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>👥</span>
+                    <span>用户管理</span>
+                </div>
+                <button class="btn btn-primary" onclick="toggleAddForm()">➕ 添加用户</button>
+            </div>
+
+            <!-- 添加用户表单 -->
+            <div class="add-user-form" id="addUserForm">
+                <div class="form-row">
+                    <input type="text" class="form-input" id="newUsername" placeholder="用户名">
+                    <input type="password" class="form-input" id="newPassword" placeholder="密码">
+                    <select class="form-input" id="newRole" style="flex:0.5;">
+                        <option value="user">普通用户</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="addUser()">添加</button>
+                    <button class="btn" style="background:#f0f0f0;" onclick="toggleAddForm()">取消</button>
+                </div>
+            </div>
+
+            <!-- 用户列表 -->
+            <div id="userListContainer">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 系统信息 -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>⚙️</span>
+                    <span>系统信息</span>
+                </div>
+            </div>
+            <table class="user-table">
+                <tr>
+                    <td style="width:200px;color:#666;">系统名称</td>
+                    <td>多功能智能问答系统</td>
+                </tr>
+                <tr>
+                    <td style="color:#666;">版本</td>
+                    <td>v1.0.0</td>
+                </tr>
+                <tr>
+                    <td style="color:#666;">服务地址</td>
+                    <td>http://127.0.0.1:8808</td>
+                </tr>
+                <tr>
+                    <td style="color:#666;">功能模块</td>
+                    <td>豆包对话、本地聊天模型、文本分类、情感分析、中英翻译、综合分析</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script src="/static/js/jquery-latest.js"></script>
+    <script>
+        let currentAdmin = null;
+
+        // 页面加载时检查登录状态
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminLogin();
+        });
+
+        // 检查管理员登录
+        function checkAdminLogin() {
+            const userStr = localStorage.getItem('currentUser');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    if (user.role === 'admin') {
+                        currentAdmin = user;
+                        showAdminPanel();
+                        return;
+                    }
+                } catch(e) {}
+            }
+            // 未登录或非管理员
+            document.getElementById('loginRequired').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+        }
+
+        // 显示管理面板
+        function showAdminPanel() {
+            document.getElementById('loginRequired').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('adminName').textContent = currentAdmin.username + ' (管理员)';
+            
+            // 加载用户列表
+            loadUsers();
+        }
+
+        // 加载用户列表
+        function loadUsers() {
+            $.get('/api/users').done(function(res) {
+                if (res.success) {
+                    renderUserTable(res.users);
+                    updateStats(res.users);
+                }
+            }).fail(function() {
+                document.getElementById('userListContainer').innerHTML = 
+                    '<div class="empty-state">加载失败，请刷新重试</div>';
+            });
+        }
+
+        // 渲染用户表格
+        function renderUserTable(users) {
+            if (users.length === 0) {
+                document.getElementById('userListContainer').innerHTML = 
+                    '<div class="empty-state">暂无用户数据</div>';
+                return;
+            }
+
+            let html = `
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">头像</th>
+                            <th>用户名</th>
+                            <th>密码</th>
+                            <th>角色</th>
+                            <th style="width:120px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            users.forEach(user => {
+                const avatarColors = {
+                    'A': 'linear-gradient(135deg, #667eea, #764ba2)',
+                    'B': 'linear-gradient(135deg, #f093fb, #f5576c)',
+                    'C': 'linear-gradient(135deg, #4facfe, #00f2fe)',
+                };
+                const avatarBg = avatarColors[user.avatar] || 'linear-gradient(135deg, #ff6b6b, #ee5a5a)';
+                
+                html += `
+                    <tr>
+                        <td>
+                            <div class="user-avatar" style="background:${avatarBg};">${user.avatar}</div>
+                        </td>
+                        <td><strong>${user.username}</strong></td>
+                        <td>
+                            <span class="password-cell" onclick="togglePassword(this)" data-pwd="${user.password}">••••••</span>
+                        </td>
+                        <td>
+                            <span class="role-badge ${user.role}">${user.role === 'admin' ? '管理员' : '普通用户'}</span>
+                        </td>
+                        <td>
+                            ${user.username !== 'admin' ? 
+                                `<button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteUser('${user.username}')">删除</button>` : 
+                                '<span style="color:#999;font-size:12px;">不可删除</span>'
+                            }
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('userListContainer').innerHTML = html;
+        }
+
+        // 更新统计数据
+        function updateStats(users) {
+            const total = users.length;
+            const admins = users.filter(u => u.role === 'admin').length;
+            const normal = total - admins;
+            
+            document.getElementById('statUsers').textContent = total;
+            document.getElementById('statAdmins').textContent = admins;
+            document.getElementById('statNormalUsers').textContent = normal;
+            
+            const now = new Date();
+            document.getElementById('statToday').textContent = 
+                now.getMonth() + 1 + '/' + now.getDate();
+        }
+
+        // 切换密码显示
+        function togglePassword(el) {
+            const showing = el.textContent !== '••••••';
+            el.textContent = showing ? '••••••' : el.dataset.pwd;
+        }
+
+        // 切换添加表单
+        function toggleAddForm() {
+            const form = document.getElementById('addUserForm');
+            form.classList.toggle('show');
+            if (form.classList.contains('show')) {
+                document.getElementById('newUsername').focus();
+            }
+        }
+
+        // 添加用户
+        function addUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('newRole').value;
+
+            if (!username || !password) {
+                alert('请填写用户名和密码');
+                return;
+            }
+
+            $.ajax({
+                url: '/api/users',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ username, password, role })
+            }).done(function(res) {
+                if (res.success) {
+                    alert('✅ 用户添加成功');
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newPassword').value = '';
+                    toggleAddForm();
+                    loadUsers();
+                } else {
+                    alert('❌ ' + res.message);
+                }
+            }).fail(function() {
+                alert('❌ 添加失败，请重试');
+            });
+        }
+
+        // 删除用户
+        function deleteUser(username) {
+            if (!confirm(`确定要删除用户 "${username}" 吗？`)) return;
+
+            $.ajax({
+                url: '/api/users/' + username,
+                method: 'DELETE'
+            }).done(function(res) {
+                if (res.success) {
+                    alert('✅ 用户已删除');
+                    loadUsers();
+                } else {
+                    alert('❌ ' + res.message);
+                }
+            }).fail(function() {
+                alert('❌ 删除失败，请重试');
+            });
+        }
+
+        // 返回首页
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
